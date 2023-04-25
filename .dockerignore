@@ -1,0 +1,8 @@
+node_modules
+dist
+public
+nginx
+.dockerignore
+.gitignore
+Dockerfile
+docker-compose.yml
