@@ -34,8 +34,8 @@ export class AuthService {
 	}
 
 	async login(req: Request, res: Response, body: AuthLoginBodyDTO) {
-		res.cookie("access", this.jwtService.access({ id: req.user.id }), { maxAge: 15 * 60 * 1000 })
-		res.cookie("refresh", this.jwtService.refresh({ id: req.user.id }), { maxAge: 24 * 60 * 60 * 1000 })
+		res.cookie("access", this.jwtService.access({ id: req.user.id }), { maxAge: 15 * 60 * 1000, httpOnly: true, sameSite: "lax" })
+		res.cookie("refresh", this.jwtService.refresh({ id: req.user.id }), { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: "lax" })
 
 		return { message: "User successfully authenticated" }
 	}
