@@ -38,6 +38,7 @@ export class CategoryService {
 			return { message: "Category successfully created" }
 		}
 	}
+
 	async get() {
 		const categories = await this.categoryModel.find()
 
@@ -48,6 +49,7 @@ export class CategoryService {
 			return categories
 		}
 	}
+	
 	async del(body: CategoryDelBodyDTO) {
 		const category = await this.categoryModel.findById(body.id)
 
