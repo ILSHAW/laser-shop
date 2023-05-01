@@ -1,8 +1,8 @@
-import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards, Query, UseInterceptors, UploadedFile, UploadedFiles } from "@nestjs/common"
-import { ApiTags, ApiResponse, ApiBody, ApiCookieAuth, ApiQuery, ApiConsumes } from "@nestjs/swagger"
-import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express"
+import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards, Query, UseInterceptors, UploadedFiles, Param } from "@nestjs/common"
+import { ApiTags, ApiResponse, ApiBody, ApiCookieAuth, ApiConsumes } from "@nestjs/swagger"
+import { FilesInterceptor } from "@nestjs/platform-express"
 
-import { ProductService, ProductCreateBodyDTO, ProductGetQueryDTO, ProductDelBodyDTO } from "../services/product.service"
+import { ProductService, ProductCreateBodyDTO, ProductGetQueryDTO, ProductGetParamDTO, ProductDelBodyDTO } from "../services/product.service"
 import { AccessGuard } from "../guards/access.guard"
 import { Role } from "../decorators/role.decorator"
 import { RoleGuard } from "../guards/role.guard"
@@ -29,11 +29,21 @@ export class ProductController {
 	@ApiResponse({ status: 400, description: "Invalid request" })
 	@ApiResponse({ status: 200, description: "List of products" })
 	@HttpCode(200)
-	@Get("")
+	@Get("all")
 	@Role(0)
 	@UseGuards(RoleGuard)
 	async get(@Query() query: ProductGetQueryDTO) {
 		return await this.productService.get(query)
+	}
+
+	@ApiResponse({ status: 400, description: "Invalid request" })
+	@ApiResponse({ status: 200, description: "Info about product" })
+	@HttpCode(200)
+	@Get(":id")
+	@Role(0)
+	@UseGuards(RoleGuard)
+	async id(@Param() param: ProductGetParamDTO) {
+		return await this.productService.id(param)
 	}
 	
 	@ApiResponse({ status: 400, description: "Invalid request" })
