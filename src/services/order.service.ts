@@ -30,10 +30,15 @@ export class OrderGetQueryDTO {
 	@IsNotEmpty({ message: "Page field is required" })
 	page: string
 	@ApiProperty({ description: "Paid", type: Boolean, required: false })
-	@IsBooleanString({ message: "Paid filed must be a boolean" })
+	@IsBooleanString({ message: "Paid field must be a boolean" })
 	@IsNotEmpty({ message: "Paid field is required" })
 	@IsOptional()
 	paid: string
+	@ApiProperty({ description: "Processing", type: Boolean, required: false })
+	@IsBooleanString({ message: "Processing field must be a boolean" })
+	@IsNotEmpty({ message: "Processing field is required" })
+	@IsOptional()
+	processing: string
 }
 export class OrderGetParamDTO {
 	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
@@ -67,6 +72,9 @@ export class OrderService {
 
 		if(query.paid) {
 			orders = orders.filter((order) => order.paid === (query.paid === "true" ? true : false))
+		}
+		if(query.processing) {
+			orders = orders.filter((order) => order.processing === (query.processing === "true" ? true : false))
 		}
 
 		if (orders.length === 0) {

@@ -3,7 +3,8 @@ import { Document, Schema } from "mongoose"
 interface IOrder {
 	customer: Schema.Types.ObjectId,
     products: Array<Schema.Types.ObjectId>,
-    paid: boolean
+    paid: boolean,
+    processing: boolean
 }
 
 export interface IOrderDocument extends IOrder, Document {}
@@ -11,5 +12,6 @@ export interface IOrderDocument extends IOrder, Document {}
 export const OrderSchema = new Schema<IOrderDocument>({
 	customer: { type: Schema.Types.ObjectId, ref: "User" },
     products: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    paid: { type: Schema.Types.Boolean, default: false }
+    paid: { type: Schema.Types.Boolean, default: false },
+    processing: { type: Schema.Types.Boolean, default: false }
 })
