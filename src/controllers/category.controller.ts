@@ -1,7 +1,7 @@
-import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards } from "@nestjs/common"
+import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards, Param } from "@nestjs/common"
 import { ApiTags, ApiResponse, ApiBody, ApiCookieAuth } from "@nestjs/swagger"
 
-import { CategoryService, CategoryCreateBodyDTO, CategoryDelBodyDTO } from "../services/category.service"
+import { CategoryService, CategoryCreateBodyDTO, CategoryDelBodyDTO, CategoryGetParamDTO } from "../services/category.service"
 import { AccessGuard } from "../guards/access.guard"
 import { Role } from "../decorators/role.decorator"
 import { RoleGuard } from "../guards/role.guard"
@@ -26,11 +26,21 @@ export class CategoryController {
 	@ApiResponse({ status: 400, description: "Invalid request" })
 	@ApiResponse({ status: 200, description: "List of categories" })
 	@HttpCode(200)
-	@Get("")
+	@Get("all")
 	@Role(0)
 	@UseGuards(RoleGuard)
 	async get() {
 		return await this.categoryService.get()
+	}
+
+	@ApiResponse({ status: 400, description: "Invalid request" })
+	@ApiResponse({ status: 200, description: "Info about category" })
+	@HttpCode(200)
+	@Get(":id")
+	@Role(0)
+	@UseGuards(RoleGuard)
+	async id(@Param() param: CategoryGetParamDTO) {
+		return await this.categoryService.id(param)
 	}
 	
 	@ApiResponse({ status: 400, description: "Invalid request" })

@@ -9,13 +9,20 @@ import { ICategoryModel } from "../models/category.model"
 import { IProductModel } from "../models/product.model"
 
 export class CategoryCreateBodyDTO {
-	@ApiProperty({ description: "Name", example: "Test" })
+	@ApiProperty({ description: "Name", example: "Test", type: String, required: true })
 	@IsString({ message: "Name must be a string" })
 	@IsNotEmpty({ message: "Name field is required" })
 	name: string
 }
+export class CategoryGetParamDTO {
+	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Id format is invalid" })
+	@IsString({ message: "Id must be a string" })
+	@IsNotEmpty({ message: "Id field is required" })
+	id: string
+}
 export class CategoryDelBodyDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663" })
+	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Id format is invalid" })
 	@IsString({ message: "Id must be a string" })
 	@IsNotEmpty({ message: "Id field is required" })
@@ -49,7 +56,16 @@ export class CategoryService {
 			return categories
 		}
 	}
-	
+	async id(param: CategoryGetParamDTO) {
+		const category = await this.categoryModel.findById(param.id)
+
+		if (category) {
+			return category
+		} 
+		else {
+			throw this.exceptionService.notFound("Category not found")
+		}
+	}
 	async del(body: CategoryDelBodyDTO) {
 		const category = await this.categoryModel.findById(body.id)
 

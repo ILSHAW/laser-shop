@@ -6,6 +6,7 @@ import { CategoryModule } from "../modules/category.module"
 import { ProductModule } from "../modules/product.module"
 import { ConfigModule } from "../modules/config.module"
 import { TokenModule } from "../modules/token.module"
+import { OrderModule } from "../modules/order.module"
 import { AuthModule } from "../modules/auth.module"
 
 @Module({
@@ -16,6 +17,7 @@ import { AuthModule } from "../modules/auth.module"
 		ProductModule,
 		ConfigModule,
 		TokenModule,
+		OrderModule,
 		AuthModule
 	]
 })

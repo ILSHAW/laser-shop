@@ -6,6 +6,7 @@ import { SubcategorySchema } from "../schemas/subcategory.schema"
 import { CategorySchema } from "../schemas/category.schema"
 import { ProductSchema } from "../schemas/product.schema"
 import { ConfigModule } from "../modules/config.module"
+import { OrderSchema } from "../schemas/order.schema"
 import { UserSchema } from "../schemas/user.schema"
 
 const databaseModule = MongooseModule.forRootAsync({
@@ -19,6 +20,7 @@ const databaseModule = MongooseModule.forRootAsync({
 const subcategoryDatabaseModule = MongooseModule.forFeature([{ name: "Subcategory", schema: SubcategorySchema }])
 const categoryDatabaseModule = MongooseModule.forFeature([{ name: "Category", schema: CategorySchema }])
 const productDatabaseModule = MongooseModule.forFeature([{ name: "Product", schema: ProductSchema }])
+const orderDatabaseModule = MongooseModule.forFeature([{ name: "Order", schema: OrderSchema }])
 const userDatabaseModule = MongooseModule.forFeature([{ name: "User", schema: UserSchema }])
 
 @Module({
@@ -50,3 +52,9 @@ export class SubcategoryDatabaseModule {}
 	exports: [productDatabaseModule]
 })
 export class ProductDatabaseModule {}
+
+@Module({
+	imports: [orderDatabaseModule],
+	exports: [orderDatabaseModule]
+})
+export class OrderDatabaseModule {}

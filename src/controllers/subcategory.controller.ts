@@ -1,7 +1,7 @@
-import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards, Query } from "@nestjs/common"
-import { ApiTags, ApiResponse, ApiBody, ApiCookieAuth, ApiQuery } from "@nestjs/swagger"
+import { Controller, Post, Body, HttpCode, Get, Delete, UseGuards, Query, Param } from "@nestjs/common"
+import { ApiTags, ApiResponse, ApiBody, ApiCookieAuth } from "@nestjs/swagger"
 
-import { SubcategoryService, SubcategoryCreateBodyDTO, SubcategoryGetQueryDTO, SubcategoryDelBodyDTO } from "../services/subcategory.service"
+import { SubcategoryService, SubcategoryCreateBodyDTO, SubcategoryGetQueryDTO, SubcategoryDelBodyDTO, SubcategoryGetParamDTO } from "../services/subcategory.service"
 import { AccessGuard } from "../guards/access.guard"
 import { Role } from "../decorators/role.decorator"
 import { RoleGuard } from "../guards/role.guard"
@@ -26,11 +26,21 @@ export class SubcategoryController {
 	@ApiResponse({ status: 400, description: "Invalid request" })
 	@ApiResponse({ status: 200, description: "List of subcategories" })
 	@HttpCode(200)
-	@Get("")
+	@Get("all")
 	@Role(0)
 	@UseGuards(RoleGuard)
 	async get(@Query() query: SubcategoryGetQueryDTO) {
 		return await this.subcategoryService.get(query)
+	}
+
+	@ApiResponse({ status: 400, description: "Invalid request" })
+	@ApiResponse({ status: 200, description: "Info about product" })
+	@HttpCode(200)
+	@Get(":id")
+	@Role(0)
+	@UseGuards(RoleGuard)
+	async id(@Param() param: SubcategoryGetParamDTO) {
+		return await this.subcategoryService.id(param)
 	}
 	
 	@ApiResponse({ status: 400, description: "Invalid request" })

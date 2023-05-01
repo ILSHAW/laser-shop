@@ -12,40 +12,47 @@ import { ICategoryModel } from "../models/category.model"
 import { IProductModel } from "../models/product.model"
 
 export class ProductCreateBodyDTO {
-    @ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663" })
+    @ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Subcategory id format is invalid" })
 	@IsString({ message: "Subcategory id must be a string" })
 	@IsNotEmpty({ message: "Subcategory id field is required" })
 	subcategory: string
-	@ApiProperty({ description: "Name", example: "Test" })
+	@ApiProperty({ description: "Name", example: "Test", type: String, required: true })
 	@IsString({ message: "Name must be a string" })
 	@IsNotEmpty({ message: "Name field is required" })
 	name: string
-	@ApiProperty({ type: "array", items: { type: "string", format: "binary" }, description: "Images" })
+	@ApiProperty({ type: "array", items: { type: "string", format: "binary" }, description: "Images", required: true })
 	images: any
 }
 export class ProductGetQueryDTO {
-	@ApiProperty({ description: "Category", example: "643fdf7f515f142ab61ce663" })
+	@ApiProperty({ description: "Category", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Category id format is invalid" })
 	@IsString({ message: "Category id must be a string" })
 	@IsNotEmpty({ message: "Category id field is required" })
 	category: string
-	@ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663" })
+	@ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Subcategory id format is invalid" })
 	@IsString({ message: "Subcategory id must be a string" })
 	@IsNotEmpty({ message: "Subcategory id field is required" })
 	subcategory: string
-	@ApiProperty({ description: "Limit", example: "10" })
+	@ApiProperty({ description: "Limit", example: "10", type: Number, required: true })
 	@IsNumberString({ no_symbols: true }, { message: "Limit must be a number" })
 	@IsNotEmpty({ message: "Limit field is required" })
 	limit: string
-	@ApiProperty({ description: "Page", example: "1" })
+	@ApiProperty({ description: "Page", example: "0", type: Number, required: true })
 	@IsNumberString({ no_symbols: true }, { message: "Page must be a number" })
 	@IsNotEmpty({ message: "Page field is required" })
 	page: string
 }
+export class ProductGetParamDTO {
+	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Id format is invalid" })
+	@IsString({ message: "Id must be a string" })
+	@IsNotEmpty({ message: "Id field is required" })
+	id: string
+}
 export class ProductDelBodyDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663" })
+	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Id format is invalid" })
 	@IsString({ message: "Id must be a string" })
 	@IsNotEmpty({ message: "Id field is required" })
@@ -113,6 +120,16 @@ export class ProductService {
 		}
 		else {
 			throw this.exceptionService.notFound("Category not found")
+		}
+	}
+	async id(param: ProductGetParamDTO) {
+		const product = await this.productModel.findById(param.id)
+	
+		if (product) {
+			return product
+		} 
+		else {
+			throw this.exceptionService.notFound("Product not found")
 		}
 	}
 	async del(body: ProductDelBodyDTO) {
