@@ -28,7 +28,6 @@ export class ProductController {
 
 	@ApiResponse({ status: 400, description: "Invalid request" })
 	@ApiResponse({ status: 200, description: "List of products" })
-	@ApiQuery({ type: ProductGetQueryDTO, required: true })
 	@HttpCode(200)
 	@Get("")
 	@Role(0)
