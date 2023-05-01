@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsMongoId } from "class-validator"
+import { IsNotEmpty, IsString, IsMongoId, IsNumberString } from "class-validator"
 import { InjectModel } from "@nestjs/mongoose"
 import { ApiProperty } from "@nestjs/swagger"
 import { Injectable } from "@nestjs/common"
@@ -8,6 +8,7 @@ import * as fs from "fs"
 
 import { ExceptionService } from "../services/exception.service"
 import { ISubcategoryModel } from "../models/subcategory.model"
+import { ICategoryModel } from "../models/category.model"
 import { IProductModel } from "../models/product.model"
 
 export class ProductCreateBodyDTO {
@@ -24,11 +25,24 @@ export class ProductCreateBodyDTO {
 	images: any
 }
 export class ProductGetQueryDTO {
+	@ApiProperty({ description: "Category", example: "643fdf7f515f142ab61ce663" })
+	@IsMongoId({ message: "Category id format is invalid" })
+	@IsString({ message: "Category id must be a string" })
+	@IsNotEmpty({ message: "Category id field is required" })
+	category: string
 	@ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663" })
 	@IsMongoId({ message: "Subcategory id format is invalid" })
 	@IsString({ message: "Subcategory id must be a string" })
 	@IsNotEmpty({ message: "Subcategory id field is required" })
 	subcategory: string
+	@ApiProperty({ description: "Limit", example: "10" })
+	@IsNumberString({ no_symbols: true }, { message: "Limit must be a number" })
+	@IsNotEmpty({ message: "Limit field is required" })
+	limit: string
+	@ApiProperty({ description: "Page", example: "1" })
+	@IsNumberString({ no_symbols: true }, { message: "Page must be a number" })
+	@IsNotEmpty({ message: "Page field is required" })
+	page: string
 }
 export class ProductDelBodyDTO {
 	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663" })
@@ -40,7 +54,7 @@ export class ProductDelBodyDTO {
 
 @Injectable()
 export class ProductService {
-	constructor(private readonly exceptionService: ExceptionService, @InjectModel("Subcategory") private readonly subcategoryModel: ISubcategoryModel, @InjectModel("Product") private readonly productModel: IProductModel) {}
+	constructor(private readonly exceptionService: ExceptionService, @InjectModel("Category") private readonly categoryModel: ICategoryModel, @InjectModel("Subcategory") private readonly subcategoryModel: ISubcategoryModel, @InjectModel("Product") private readonly productModel: IProductModel) {}
 
 	async create(body: ProductCreateBodyDTO, files: Array<Express.Multer.File>) {
 		const cover = files[0]
@@ -79,20 +93,26 @@ export class ProductService {
 		}
 	}
 	async get(query: ProductGetQueryDTO) {
+		const category = await this.categoryModel.findById(query.category)
 		const subcategory = await this.subcategoryModel.findById(query.subcategory)
 
-		if (subcategory) {
-			const products = await this.productModel.find({ subcategory: subcategory.id })
-
-			if (products.length === 0) {
-				throw this.exceptionService.notFound("Products not found")
+		if(category) {
+			if (subcategory) {
+				const products = await this.productModel.find({ category: category.id, subcategory: subcategory.id }).limit(Number(query.limit)).skip(Number(query.limit)*Number(query.page))
+	
+				if (products.length === 0) {
+					throw this.exceptionService.notFound("Products not found")
+				} 
+				else {
+					return products
+				}
 			} 
 			else {
-				return products
+				throw this.exceptionService.notFound("Subcategory not found")
 			}
-		} 
+		}
 		else {
-			throw this.exceptionService.notFound("Subcategory not found")
+			throw this.exceptionService.notFound("Category not found")
 		}
 	}
 	async del(body: ProductDelBodyDTO) {
