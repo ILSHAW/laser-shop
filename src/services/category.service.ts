@@ -9,23 +9,23 @@ import { ICategoryModel } from "../models/category.model"
 import { IProductModel } from "../models/product.model"
 
 export class CategoryCreateBodyDTO {
-	@ApiProperty({ description: "Name", example: "Test", type: String, required: true })
-	@IsString({ message: "Name must be a string" })
-	@IsNotEmpty({ message: "Name field is required" })
+	@ApiProperty({ description: "Category name", example: "Test", type: String, required: true })
+	@IsString({ message: "Category name must be a string" })
+	@IsNotEmpty({ message: "Category name field is required" })
 	name: string
 }
 export class CategoryGetParamDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
-	@IsMongoId({ message: "Id format is invalid" })
-	@IsString({ message: "Id must be a string" })
-	@IsNotEmpty({ message: "Id field is required" })
+	@ApiProperty({ description: "Category id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Category id format is invalid" })
+	@IsString({ message: "Category id must be a string" })
+	@IsNotEmpty({ message: "Category id field is required" })
 	id: string
 }
 export class CategoryDelBodyDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
-	@IsMongoId({ message: "Id format is invalid" })
-	@IsString({ message: "Id must be a string" })
-	@IsNotEmpty({ message: "Id field is required" })
+	@ApiProperty({ description: "Category id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Category id format is invalid" })
+	@IsString({ message: "Category id must be a string" })
+	@IsNotEmpty({ message: "Category id field is required" })
 	id: string
 }
 

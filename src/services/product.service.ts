@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsMongoId, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsString, IsMongoId, IsNumberString, IsOptional } from "class-validator"
 import { InjectModel } from "@nestjs/mongoose"
 import { ApiProperty } from "@nestjs/swagger"
 import { Injectable } from "@nestjs/common"
@@ -12,50 +12,58 @@ import { ICategoryModel } from "../models/category.model"
 import { IProductModel } from "../models/product.model"
 
 export class ProductCreateBodyDTO {
-    @ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+    @ApiProperty({ description: "Subcategory id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
 	@IsMongoId({ message: "Subcategory id format is invalid" })
 	@IsString({ message: "Subcategory id must be a string" })
 	@IsNotEmpty({ message: "Subcategory id field is required" })
 	subcategory: string
-	@ApiProperty({ description: "Name", example: "Test", type: String, required: true })
-	@IsString({ message: "Name must be a string" })
-	@IsNotEmpty({ message: "Name field is required" })
+	@ApiProperty({ description: "Product name", example: "Test", type: String, required: true })
+	@IsString({ message: "Product name must be a string" })
+	@IsNotEmpty({ message: "Product name field is required" })
 	name: string
-	@ApiProperty({ type: "array", items: { type: "string", format: "binary" }, description: "Images", required: true })
+	@ApiProperty({ description: "Product price", example: "1000", type: String, required: true })
+	@IsNumberString({ no_symbols: true }, { message: "Product price must be a string number" })
+	@IsNotEmpty({ message: "Product price field is required" })
+	price: string
+	@ApiProperty({ description: "Product color", example: "White", type: String, required: true })
+	@IsString({ message: "Product color must be a string" })
+	@IsNotEmpty({ message: "Product color field is required" })
+	color: string
+	@ApiProperty({ type: "array", items: { type: "string", format: "binary" }, description: "Product images", required: true })
 	images: any
 }
 export class ProductGetQueryDTO {
-	@ApiProperty({ description: "Category", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@ApiProperty({ description: "Category id", example: "643fdf7f515f142ab61ce663", type: String, required: false })
 	@IsMongoId({ message: "Category id format is invalid" })
 	@IsString({ message: "Category id must be a string" })
-	@IsNotEmpty({ message: "Category id field is required" })
+	@IsOptional()
 	category: string
-	@ApiProperty({ description: "Subcategory", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@ApiProperty({ description: "Subcategory id", example: "643fdf7f515f142ab61ce663", type: String, required: false })
 	@IsMongoId({ message: "Subcategory id format is invalid" })
 	@IsString({ message: "Subcategory id must be a string" })
-	@IsNotEmpty({ message: "Subcategory id field is required" })
+	@IsOptional()
 	subcategory: string
-	@ApiProperty({ description: "Limit", example: "10", type: Number, required: true })
-	@IsNumberString({ no_symbols: true }, { message: "Limit must be a number" })
-	@IsNotEmpty({ message: "Limit field is required" })
-	limit: string
-	@ApiProperty({ description: "Page", example: "0", type: Number, required: true })
-	@IsNumberString({ no_symbols: true }, { message: "Page must be a number" })
-	@IsNotEmpty({ message: "Page field is required" })
-	page: string
+	@ApiProperty({ description: "Sort property", example: "name", type: String, required: false })
+	@IsString({ message: "Sort property must be a string" })
+	@IsOptional()
+	sort: string
+	@ApiProperty({ description: "Sort direction", example: "0", type: String, required: false })
+	@IsString({ message: "Sort direction must be a string" })
+	@IsOptional()
+	direction: string
 }
 export class ProductGetParamDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
-	@IsMongoId({ message: "Id format is invalid" })
-	@IsString({ message: "Id must be a string" })
-	@IsNotEmpty({ message: "Id field is required" })
+	@ApiProperty({ description: "Product id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Product id format is invalid" })
+	@IsString({ message: "Product id must be a string" })
+	@IsNotEmpty({ message: "Product id field is required" })
 	id: string
 }
 export class ProductDelBodyDTO {
-	@ApiProperty({ description: "Id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
-	@IsMongoId({ message: "Id format is invalid" })
-	@IsString({ message: "Id must be a string" })
-	@IsNotEmpty({ message: "Id field is required" })
+	@ApiProperty({ description: "Product id", example: "643fdf7f515f142ab61ce663", type: String, required: true })
+	@IsMongoId({ message: "Product id format is invalid" })
+	@IsString({ message: "Product id must be a string" })
+	@IsNotEmpty({ message: "Product id field is required" })
 	id: string
 }
 
@@ -79,7 +87,9 @@ export class ProductService {
 				const product = await this.productModel.create({ 
 					category: subcategory.category, 
 					subcategory: subcategory.id, 
-					name: body.name
+					name: body.name,
+					price: Number(body.price),
+					color: body.color
 				})
 
 				await sharp(cover.buffer).jpeg().toFile(path.resolve(`public/images/product_${product.id}_cover.jpg`))
@@ -103,24 +113,41 @@ export class ProductService {
 		const category = await this.categoryModel.findById(query.category)
 		const subcategory = await this.subcategoryModel.findById(query.subcategory)
 
-		if(category) {
-			if (subcategory) {
-				const products = await this.productModel.find({ category: category.id, subcategory: subcategory.id }).limit(Number(query.limit)).skip(Number(query.limit)*Number(query.page))
-	
-				if (products.length === 0) {
-					throw this.exceptionService.notFound("Products not found")
-				} 
-				else {
-					return products
-				}
-			} 
-			else {
-				throw this.exceptionService.notFound("Subcategory not found")
+		if(query.category && !category) throw this.exceptionService.notFound("Category not found")
+		if(query.subcategory && !subcategory) throw this.exceptionService.notFound("Subcategory not found")
+
+		let products = await this.productModel.find().then((result) => {
+			if(category) {
+				result = result.filter((product) => product.category == category.id)
 			}
-		}
-		else {
-			throw this.exceptionService.notFound("Category not found")
-		}
+			if(subcategory) {
+				result = result.filter((product) => product.subcategory == subcategory.id)
+			}
+			if(query.sort && query.direction) {
+				if(query.sort === "name" && query.direction === "0") {
+					result = result.sort((a, b) => a.name > b.name ? 1 : (a.name === b.name ? 0 : -1))
+				}
+				if(query.sort === "name" && query.direction === "1") {
+					result = result.sort((a, b) => a.name > b.name ? -1 : (a.name === b.name ? 0 : 1))
+				}
+				if(query.sort === "price" && query.direction === "0") {
+					result = result.sort((a, b) => a.price > b.price ? 1 : (a.price === b.price ? 0 : -1))
+				}
+				if(query.sort === "price" && query.direction === "1") {
+					result = result.sort((a, b) => a.price > b.price ? -1 : (a.price === b.price ? 0 : 1))
+				}
+				if(query.sort === "color" && query.direction === "0") {
+					result = result.sort((a, b) => a.color > b.color ? 1 : (a.color === b.color ? 0 : -1))
+				}
+				if(query.sort === "color" && query.direction === "1") {
+					result = result.sort((a, b) => a.color > b.color ? -1 : (a.color === b.color ? 0 : 1))
+				}
+			}
+
+			return result
+		})
+
+		return products
 	}
 	async id(param: ProductGetParamDTO) {
 		const product = await this.productModel.findById(param.id)

@@ -8,15 +8,15 @@ import { JwtService } from "../services/jwt.service"
 import { IUserModel } from "../models/user.model"
 
 export class AuthSignupBodyDTO {
-	@ApiProperty({ description: "Email", example: "example@example.com", type: String })
+	@ApiProperty({ description: "User email", example: "example@example.com", type: String })
 	login: string
-	@ApiProperty({ description: "Password", example: "12345678", type: String })
+	@ApiProperty({ description: "User password", example: "12345678", type: String })
 	password: string
 }
 export class AuthLoginBodyDTO {
-	@ApiProperty({ description: "Email", example: "example@example.com", type: String })
+	@ApiProperty({ description: "User email", example: "example@example.com", type: String })
 	login: string
-	@ApiProperty({ description: "Password", example: "12345678", type: String })
+	@ApiProperty({ description: "User password", example: "12345678", type: String })
 	password: string
 }
 
