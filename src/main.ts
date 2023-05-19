@@ -21,6 +21,7 @@ async function bootstrap() {
 
   	app.useGlobalFilters(new EverythingExceptionsFilter(), new HttpExceptionsFilter(), new NotFoundExceptionFilter())
 	app.useGlobalPipes(new ValidationPipe())
+	app.enableCors({ origin: "*", credentials: true })
   	app.use(cookies())
 
   	await app.listen(config.get("app.port"), () => logger.log(`Server is running on http://127.0.0.1:${config.get("app.port")}`))
